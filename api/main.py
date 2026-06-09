@@ -1,9 +1,11 @@
 import os
 import re
+import time
+from collections import defaultdict
 from pathlib import Path
 from urllib.parse import quote
 
-from fastapi import FastAPI, File, Form, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
@@ -16,7 +18,9 @@ from lib.flatten import (
 )
 
 MAX_UPLOAD_BYTES = 25 * 1024 * 1024
+RATE_LIMIT_PER_MINUTE = max(1, int(os.environ.get("RATE_LIMIT_PER_MINUTE", "10")))
 WEB_DIR = Path(__file__).resolve().parent.parent / "web"
+_rate_limit_buckets: dict[str, list[float]] = defaultdict(list)
 
 app = FastAPI(title="sqwash-pdf API")
 
@@ -35,7 +39,26 @@ def _parse_allowed_origins() -> list[str]:
 
 
 def _allow_vercel_previews() -> bool:
-    return os.environ.get("ALLOW_VERCEL_PREVIEWS", "true").lower() in ("1", "true", "yes")
+    return os.environ.get("ALLOW_VERCEL_PREVIEWS", "false").lower() in ("1", "true", "yes")
+
+
+def _client_ip(request: Request) -> str:
+    forwarded_for = request.headers.get("x-forwarded-for")
+    if forwarded_for:
+        return forwarded_for.split(",")[0].strip()
+    if request.client:
+        return request.client.host
+    return "unknown"
+
+
+def _check_rate_limit(request: Request) -> None:
+    client_ip = _client_ip(request)
+    now = time.monotonic()
+    recent_requests = [timestamp for timestamp in _rate_limit_buckets[client_ip] if now - timestamp < 60]
+    if len(recent_requests) >= RATE_LIMIT_PER_MINUTE:
+        raise HTTPException(status_code=429, detail="Too many requests. Try again in a minute.")
+    recent_requests.append(now)
+    _rate_limit_buckets[client_ip] = recent_requests
 
 
 allowed_origins = _parse_allowed_origins()
@@ -77,10 +100,13 @@ async def health():
 
 @app.post("/api/flatten")
 async def flatten_pdf_endpoint(
+    request: Request,
     file: UploadFile = File(...),
     dpi: int = Form(150),
     jpg_quality: int = Form(75),
 ):
+    _check_rate_limit(request)
+
     filename = file.filename or ""
     if not filename.lower().endswith(".pdf"):
         raise HTTPException(status_code=415, detail="Only PDF files are supported.")

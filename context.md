@@ -20,7 +20,7 @@ Production hosting split:
 Local development:
 
 ```powershell
-Set-Location "C:\Users\amirl\OneDrive\Documents\GitHub\sqwash-pdf"
+Set-Location "<repo-root>"
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 .\.venv\Scripts\python.exe -m uvicorn api.main:app --reload
@@ -47,7 +47,8 @@ Open `http://localhost:8000` for UI and API together.
 
 - `VERCEL_APP_URL` — production Vercel origin, no trailing slash: `https://sqwash-pdf.vercel.app`
 - `ALLOWED_ORIGINS` — extra comma-separated origins (example: `http://localhost:8000` for local UI against Render API)
-- `ALLOW_VERCEL_PREVIEWS` — `true` (default) allows all `https://*.vercel.app` preview deploys
+- `ALLOW_VERCEL_PREVIEWS` — `false` by default; set `true` only if you need Vercel preview deploys
+- `RATE_LIMIT_PER_MINUTE` — per-IP cap on `POST /api/flatten` (default `10`)
 - `PORT` — set automatically on Render
 
 Example Render env:
@@ -55,7 +56,7 @@ Example Render env:
 ```
 VERCEL_APP_URL=https://sqwash-pdf.vercel.app
 ALLOWED_ORIGINS=http://localhost:8000
-ALLOW_VERCEL_PREVIEWS=true
+ALLOW_VERCEL_PREVIEWS=false
 ```
 
 Example Vercel env:

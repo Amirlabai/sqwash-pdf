@@ -6,6 +6,7 @@ from unittest.mock import MagicMock, patch
 import fitz
 from fastapi.testclient import TestClient
 
+import api.main
 from api.main import MAX_UPLOAD_BYTES, app
 from flatten_pdf import flatten_pdf
 from lib.flatten import EmptyPdfError, InvalidPdfError, flatten_pdf_bytes
@@ -107,6 +108,24 @@ class ApiTests(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 415)
+
+    def test_flatten_endpoint_rate_limited(self):
+        pdf_bytes = create_dummy_pdf_bytes()
+        with patch("api.main.RATE_LIMIT_PER_MINUTE", 1):
+            api.main._rate_limit_buckets.clear()
+            first = self.client.post(
+                "/api/flatten",
+                files={"file": ("sample.pdf", pdf_bytes, "application/pdf")},
+                data={"dpi": "150", "jpg_quality": "75"},
+            )
+            second = self.client.post(
+                "/api/flatten",
+                files={"file": ("sample.pdf", pdf_bytes, "application/pdf")},
+                data={"dpi": "150", "jpg_quality": "75"},
+            )
+
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(second.status_code, 429)
 
     def test_flatten_endpoint_rejects_oversize_upload(self):
         pdf_bytes = create_dummy_pdf_bytes()

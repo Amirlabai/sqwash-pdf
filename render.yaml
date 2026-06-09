@@ -8,7 +8,9 @@ services:
     healthCheckPath: /health
     envVars:
       - key: ALLOW_VERCEL_PREVIEWS
-        value: "true"
+        value: "false"
+      - key: RATE_LIMIT_PER_MINUTE
+        value: "10"
       - key: VERCEL_APP_URL
         value: https://sqwash-pdf.vercel.app
       - key: ALLOWED_ORIGINS
