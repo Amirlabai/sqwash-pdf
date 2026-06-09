@@ -18,19 +18,39 @@ WEB_DIR = Path(__file__).resolve().parent.parent / "web"
 
 app = FastAPI(title="sqwash-pdf API")
 
-allowed_origins = [
-    origin.strip()
-    for origin in os.environ.get("ALLOWED_ORIGINS", "").split(",")
-    if origin.strip()
-]
-if allowed_origins:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=allowed_origins,
-        allow_credentials=True,
-        allow_methods=["GET", "POST", "OPTIONS"],
-        allow_headers=["*"],
-    )
+def _parse_allowed_origins() -> list[str]:
+    origins = [
+        origin.strip().rstrip("/")
+        for origin in os.environ.get("ALLOWED_ORIGINS", "").split(",")
+        if origin.strip()
+    ]
+
+    vercel_app_url = os.environ.get("VERCEL_APP_URL", "").strip().rstrip("/")
+    if vercel_app_url and vercel_app_url not in origins:
+        origins.append(vercel_app_url)
+
+    return origins
+
+
+def _allow_vercel_previews() -> bool:
+    return os.environ.get("ALLOW_VERCEL_PREVIEWS", "true").lower() in ("1", "true", "yes")
+
+
+allowed_origins = _parse_allowed_origins()
+allow_vercel_previews = _allow_vercel_previews()
+
+if allowed_origins or allow_vercel_previews:
+    cors_kwargs = {
+        "allow_credentials": True,
+        "allow_methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["*"],
+    }
+    if allowed_origins:
+        cors_kwargs["allow_origins"] = allowed_origins
+    if allow_vercel_previews:
+        cors_kwargs["allow_origin_regex"] = r"https://.*\.vercel\.app"
+
+    app.add_middleware(CORSMiddleware, **cors_kwargs)
 
 
 @app.get("/health")

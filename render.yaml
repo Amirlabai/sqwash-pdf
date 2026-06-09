@@ -6,3 +6,10 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
+    envVars:
+      - key: ALLOW_VERCEL_PREVIEWS
+        value: "true"
+      - key: VERCEL_APP_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false

@@ -35,10 +35,34 @@ Open `http://localhost:8000` for UI and API together.
 
 ## Environment variables
 
-- `ALLOWED_ORIGINS` — comma-separated CORS origins for direct API access (optional when using Vercel rewrites)
+### Vercel (`web/`)
+
+- `API_URL` — Render service origin, no trailing slash (example: `https://sqwash-pdf-api.onrender.com`). Used at build time to generate `vercel.json` rewrites.
+- Build command: `npm run build`
+- Root directory: `web`
+
+### Render
+
+- `VERCEL_APP_URL` — production Vercel origin, no trailing slash (example: `https://sqwash-pdf.vercel.app`)
+- `ALLOWED_ORIGINS` — extra comma-separated origins (example: `http://localhost:8000` for local UI against Render API)
+- `ALLOW_VERCEL_PREVIEWS` — `true` (default) allows all `https://*.vercel.app` preview deploys
 - `PORT` — set automatically on Render
+
+Example Render env:
+
+```
+VERCEL_APP_URL=https://your-app.vercel.app
+ALLOWED_ORIGINS=http://localhost:8000
+ALLOW_VERCEL_PREVIEWS=true
+```
+
+Example Vercel env:
+
+```
+API_URL=https://sqwash-pdf-api.onrender.com
+```
 
 ## Deployment notes
 
-- Update `web/vercel.json` rewrite destination to your Render service URL after first deploy.
+- Set `API_URL` on Vercel and `VERCEL_APP_URL` on Render to each other's live URL.
 - Render free tier sleeps after 15 minutes idle; first request may take ~30–60 seconds.

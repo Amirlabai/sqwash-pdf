@@ -1,5 +1,6 @@
 const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 120000;
+const API_BASE = (window.SQWASH_CONFIG && window.SQWASH_CONFIG.apiBase) || "";
 
 const dropZone = document.getElementById("drop-zone");
 const fileInput = document.getElementById("file-input");
@@ -111,7 +112,7 @@ async function flattenPdf() {
   const timeoutId = window.setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const response = await fetch("/api/flatten", {
+    const response = await fetch(`${API_BASE}/api/flatten`, {
       method: "POST",
       body: formData,
       signal: controller.signal,
