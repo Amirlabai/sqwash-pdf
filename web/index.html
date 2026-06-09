@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>sqwash-pdf — Flatten PDFs</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>sqwash-pdf</h1>
+      <p class="subtitle">Flatten PDFs by rasterizing each page to JPEG and rebuilding a new PDF.</p>
+    </header>
+
+    <section class="card">
+      <div id="drop-zone" class="drop-zone" tabindex="0" role="button" aria-label="Upload PDF">
+        <p class="drop-title">Drop a PDF here</p>
+        <p class="drop-hint">or click to choose a file (max 25 MB)</p>
+        <input id="file-input" type="file" accept="application/pdf,.pdf" hidden>
+      </div>
+
+      <p id="file-name" class="file-name">No file selected</p>
+
+      <div class="controls">
+        <label for="dpi-input">
+          DPI
+          <input id="dpi-input" type="number" min="72" max="300" value="150">
+        </label>
+
+        <label for="quality-input">
+          JPEG quality
+          <input id="quality-input" type="range" min="0" max="100" value="75">
+          <span id="quality-value">75</span>
+        </label>
+      </div>
+
+      <button id="flatten-btn" type="button" disabled>Flatten PDF</button>
+
+      <p id="status" class="status" aria-live="polite"></p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
