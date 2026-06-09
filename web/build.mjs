@@ -1,6 +1,6 @@
 import { writeFileSync } from "node:fs";
 
-const DEFAULT_API_URL = "https://sqwash-pdf-api.onrender.com";
+const DEFAULT_API_URL = "https://sqwash-pdf.onrender.com";
 const apiUrl = (process.env.API_URL || DEFAULT_API_URL).replace(/\/$/, "");
 
 const vercelJson = {
@@ -14,11 +14,11 @@ const vercelJson = {
 };
 
 const configJs = `window.SQWASH_CONFIG = {
-  apiBase: ""
+  apiBase: "${apiUrl}"
 };
 `;
 
 writeFileSync("vercel.json", `${JSON.stringify(vercelJson, null, 2)}\n`);
 writeFileSync("config.js", configJs);
 
-console.log(`Build complete. API rewrite target: ${apiUrl}`);
+console.log(`Build complete. API base: ${apiUrl}`);

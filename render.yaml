@@ -10,6 +10,6 @@ services:
       - key: ALLOW_VERCEL_PREVIEWS
         value: "true"
       - key: VERCEL_APP_URL
-        sync: false
+        value: https://sqwash-pdf.vercel.app
       - key: ALLOWED_ORIGINS
         sync: false

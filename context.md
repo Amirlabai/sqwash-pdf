@@ -13,8 +13,9 @@ Flatten PDF files by rasterizing each page to JPEG and rebuilding a new PDF. Thi
 
 Production hosting split:
 
-- Vercel: static UI in `web/`, proxies `/api/*` to Render
-- Render: FastAPI API (`uvicorn api.main:app`)
+- Vercel: static UI at https://sqwash-pdf.vercel.app
+- Render: FastAPI API at https://sqwash-pdf.onrender.com
+- Browser uploads call Render directly (avoids Vercel proxy body limits)
 
 Local development:
 
@@ -37,14 +38,14 @@ Open `http://localhost:8000` for UI and API together.
 
 ### Vercel (`web/`)
 
-- `API_URL` — Render service origin, no trailing slash (example: `https://sqwash-pdf-api.onrender.com`). Used at build time to generate `vercel.json` rewrites.
+- `API_URL` — Render service origin, no trailing slash: `https://sqwash-pdf.onrender.com`. Baked into `config.js` at build time.
 - Build command: `npm run build`
 - Output directory: `.` (set in generated `vercel.json`)
 - Root directory: `web`
 
 ### Render
 
-- `VERCEL_APP_URL` — production Vercel origin, no trailing slash (example: `https://sqwash-pdf.vercel.app`)
+- `VERCEL_APP_URL` — production Vercel origin, no trailing slash: `https://sqwash-pdf.vercel.app`
 - `ALLOWED_ORIGINS` — extra comma-separated origins (example: `http://localhost:8000` for local UI against Render API)
 - `ALLOW_VERCEL_PREVIEWS` — `true` (default) allows all `https://*.vercel.app` preview deploys
 - `PORT` — set automatically on Render
@@ -52,7 +53,7 @@ Open `http://localhost:8000` for UI and API together.
 Example Render env:
 
 ```
-VERCEL_APP_URL=https://your-app.vercel.app
+VERCEL_APP_URL=https://sqwash-pdf.vercel.app
 ALLOWED_ORIGINS=http://localhost:8000
 ALLOW_VERCEL_PREVIEWS=true
 ```
@@ -60,10 +61,11 @@ ALLOW_VERCEL_PREVIEWS=true
 Example Vercel env:
 
 ```
-API_URL=https://sqwash-pdf-api.onrender.com
+API_URL=https://sqwash-pdf.onrender.com
 ```
 
 ## Deployment notes
 
-- Set `API_URL` on Vercel and `VERCEL_APP_URL` on Render to each other's live URL.
+- `VERCEL_APP_URL` on Render must match the live Vercel app (`https://sqwash-pdf.vercel.app`).
+- `API_URL` on Vercel must match the live Render service (`https://sqwash-pdf.onrender.com`).
 - Render free tier sleeps after 15 minutes idle; first request may take ~30–60 seconds.
