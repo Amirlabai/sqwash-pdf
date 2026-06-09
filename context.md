@@ -39,6 +39,7 @@ Open `http://localhost:8000` for UI and API together.
 
 - `API_URL` — Render service origin, no trailing slash (example: `https://sqwash-pdf-api.onrender.com`). Used at build time to generate `vercel.json` rewrites.
 - Build command: `npm run build`
+- Output directory: `.` (set in generated `vercel.json`)
 - Root directory: `web`
 
 ### Render

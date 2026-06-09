@@ -4,6 +4,7 @@ const DEFAULT_API_URL = "https://sqwash-pdf-api.onrender.com";
 const apiUrl = (process.env.API_URL || DEFAULT_API_URL).replace(/\/$/, "");
 
 const vercelJson = {
+  outputDirectory: ".",
   rewrites: [
     {
       source: "/api/:path*",
