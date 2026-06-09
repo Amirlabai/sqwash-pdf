@@ -86,6 +86,19 @@ class ApiTests(unittest.TestCase):
         self.assertTrue(response.content.startswith(b"%PDF"))
         self.assertIn('filename="sample-flat-150.pdf"', response.headers["content-disposition"])
 
+    def test_flatten_endpoint_unicode_filename(self):
+        pdf_bytes = create_dummy_pdf_bytes()
+        response = self.client.post(
+            "/api/flatten",
+            files={"file": ("מסמך בדיקה.pdf", pdf_bytes, "application/pdf")},
+            data={"dpi": "150", "jpg_quality": "75"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        content_disposition = response.headers["content-disposition"]
+        self.assertIn("filename*=", content_disposition)
+        self.assertTrue(response.content.startswith(b"%PDF"))
+
     def test_flatten_endpoint_rejects_non_pdf(self):
         response = self.client.post(
             "/api/flatten",

@@ -1,5 +1,7 @@
 import os
+import re
 from pathlib import Path
+from urllib.parse import quote
 
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -53,6 +55,13 @@ if allowed_origins or allow_vercel_previews:
     app.add_middleware(CORSMiddleware, **cors_kwargs)
 
 
+def attachment_content_disposition(filename: str) -> str:
+    """Build a latin-1-safe Content-Disposition header for any Unicode filename."""
+    ascii_fallback = re.sub(r"[^\x20-\x7E]", "_", filename) or "download.pdf"
+    encoded_filename = quote(filename)
+    return f"attachment; filename=\"{ascii_fallback}\"; filename*=UTF-8''{encoded_filename}"
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
@@ -97,7 +106,7 @@ async def flatten_pdf_endpoint(
     return Response(
         content=output_bytes,
         media_type="application/pdf",
-        headers={"Content-Disposition": f'attachment; filename="{output_filename}"'},
+        headers={"Content-Disposition": attachment_content_disposition(output_filename)},
     )
 
 
