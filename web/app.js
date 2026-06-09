@@ -67,8 +67,26 @@ function extractFilename(contentDisposition, fallback) {
     return fallback;
   }
 
-  const match = /filename="([^"]+)"/i.exec(contentDisposition);
-  return match ? match[1] : fallback;
+  const utf8Match = /filename\*=UTF-8''([^;]+)/i.exec(contentDisposition);
+  if (utf8Match) {
+    try {
+      return decodeURIComponent(utf8Match[1]);
+    } catch {
+      // Fall through to ASCII filename variants.
+    }
+  }
+
+  const quotedMatch = /filename="([^"]+)"/i.exec(contentDisposition);
+  if (quotedMatch) {
+    return quotedMatch[1];
+  }
+
+  const plainMatch = /filename=([^;]+)/i.exec(contentDisposition);
+  if (plainMatch) {
+    return plainMatch[1].trim();
+  }
+
+  return fallback;
 }
 
 function downloadBlob(blob, filename) {

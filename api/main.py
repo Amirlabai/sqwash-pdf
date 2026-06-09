@@ -57,8 +57,16 @@ if allowed_origins or allow_vercel_previews:
 
 def attachment_content_disposition(filename: str) -> str:
     """Build a latin-1-safe Content-Disposition header for any Unicode filename."""
-    ascii_fallback = re.sub(r"[^\x20-\x7E]", "_", filename) or "download.pdf"
     encoded_filename = quote(filename)
+    if filename.isascii():
+        return f"attachment; filename=\"{filename}\""
+
+    ascii_fallback_match = re.search(r"-flat-(\d+)\.pdf$", filename, re.IGNORECASE)
+    ascii_fallback = (
+        f"flat-{ascii_fallback_match.group(1)}.pdf"
+        if ascii_fallback_match
+        else "download.pdf"
+    )
     return f"attachment; filename=\"{ascii_fallback}\"; filename*=UTF-8''{encoded_filename}"
 
 
