@@ -25,21 +25,11 @@ _rate_limit_buckets: dict[str, list[float]] = defaultdict(list)
 app = FastAPI(title="sqwash-pdf API")
 
 def _parse_allowed_origins() -> list[str]:
-    origins = [
+    return [
         origin.strip().rstrip("/")
         for origin in os.environ.get("ALLOWED_ORIGINS", "").split(",")
         if origin.strip()
     ]
-
-    vercel_app_url = os.environ.get("VERCEL_APP_URL", "").strip().rstrip("/")
-    if vercel_app_url and vercel_app_url not in origins:
-        origins.append(vercel_app_url)
-
-    return origins
-
-
-def _allow_vercel_previews() -> bool:
-    return os.environ.get("ALLOW_VERCEL_PREVIEWS", "false").lower() in ("1", "true", "yes")
 
 
 def _client_ip(request: Request) -> str:
@@ -62,20 +52,15 @@ def _check_rate_limit(request: Request) -> None:
 
 
 allowed_origins = _parse_allowed_origins()
-allow_vercel_previews = _allow_vercel_previews()
 
-if allowed_origins or allow_vercel_previews:
-    cors_kwargs = {
-        "allow_credentials": True,
-        "allow_methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["*"],
-    }
-    if allowed_origins:
-        cors_kwargs["allow_origins"] = allowed_origins
-    if allow_vercel_previews:
-        cors_kwargs["allow_origin_regex"] = r"https://.*\.vercel\.app"
-
-    app.add_middleware(CORSMiddleware, **cors_kwargs)
+if allowed_origins:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=allowed_origins,
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["*"],
+    )
 
 
 def attachment_content_disposition(filename: str) -> str:

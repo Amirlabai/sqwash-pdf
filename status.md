@@ -6,15 +6,12 @@
 - [x] CLI refactor to use shared library
 - [x] FastAPI backend with `/health` and `POST /api/flatten`
 - [x] Static web UI with upload, DPI/quality controls, and download
-- [x] Render and Vercel deployment config
-- [x] Vercel `API_URL` env var with build-time `vercel.json` generation
+- [x] Render-only hosting (UI + API on one service)
 - [x] Unit tests for bytes API, CLI output, and FastAPI routes
 - [x] Workspace docs (`context.md`, `.incoming/`)
 
 ## Next steps
 
-- [ ] Deploy API to Render and note the live `onrender.com` URL
-- [ ] Set `API_URL` on Vercel to the Render URL
-- [ ] Set `VERCEL_APP_URL` on Render to the Vercel production URL
-- [ ] Deploy `web/` to Vercel (root `web`, build `npm run build`)
+- [ ] Deploy to Render and confirm https://sqwash-pdf.onrender.com serves UI + API
 - [ ] Smoke test upload/download on production
+- [ ] Delete or disable the old Vercel project if it still exists

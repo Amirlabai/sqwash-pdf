@@ -1,17 +1,13 @@
 services:
   - type: web
-    name: sqwash-pdf-api
+    name: sqwash-pdf
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn api.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
-      - key: ALLOW_VERCEL_PREVIEWS
-        value: "false"
       - key: RATE_LIMIT_PER_MINUTE
         value: "10"
-      - key: VERCEL_APP_URL
-        value: https://sqwash-pdf.vercel.app
       - key: ALLOWED_ORIGINS
         sync: false
